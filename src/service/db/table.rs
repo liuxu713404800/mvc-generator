@@ -28,7 +28,7 @@ pub fn get_table_columns(table: String) -> Vec<Column> {
 
     let schema = connect::get_config_schame();
     let sql = String::from("select COLUMN_NAME column_name, DATA_TYPE data_type, COLUMN_KEY column_key from COLUMNS where TABLE_SCHEMA = '") +
-        &schema + "' and TABLE_NAME = '" + &table +"'";
+        &schema + "' and TABLE_NAME = '" + &table + "'";
     let mut conn = get_table_conn().unwrap();
     
     let res: Vec<Column> = conn.query_map(sql, |(column_name, data_type, column_key)| Column{column_name: column_name, data_type: data_type , column_key: column_key}).unwrap();
