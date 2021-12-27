@@ -1,24 +1,26 @@
 use crate::model::column::Column;
 use crate::utils::string_util;
 use crate::config::java;
+use crate::service::output as output_service;
 
 // 生成entry文件
-pub fn gen_entry(table: &str, column_list: Vec<Column>) -> String {
-    let mut res = String::from("");
+pub fn gen_entry(table: &str, column_list: Vec<Column>) {
+    let mut content = String::from("");
     let package_line = get_package_line();
     let import_lines = get_import_lines(&column_list);
     let annotation_lines = get_annotation_lines();
     let class_name_line = get_class_name_line(table);
     let field_lines = get_field_lines(&column_list);
     let end_line = get_end_line();
-
-    res = res + &package_line + "\n" + &import_lines + "\n" + &annotation_lines
+    content = content + &package_line + "\n\n" + &import_lines + "\n" + &annotation_lines
               + &class_name_line + "\n" + "\n" + &field_lines + "\n" + &end_line + "\n";
-    res          
+    let filename = string_util::get_hump_class_name(table) + "Entry.java";           
+    output_service::write_result("domain",  &filename , &content);
 }
 
 fn get_package_line() -> String {
-    String::from("\n")
+    let package_name = java::get_package_name();
+    String::from("package ") + &package_name + ".domain;"
 }
 
 
@@ -64,7 +66,7 @@ fn get_annotation_lines() -> String {
 // 类定义行
 fn get_class_name_line(table: &str) -> String {
     let mut res = String::from("");
-    res = res + "public class " + &string_util::get_hump_class_name(table) + " {";
+    res = res + "public class " + &string_util::get_hump_class_name(table) + "Entry" + " {";
     res
 }
 

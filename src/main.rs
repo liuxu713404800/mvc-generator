@@ -12,8 +12,7 @@ fn main() {
 
    for table in table_list {
       let column_list = table_service::get_table_columns(&table);
-      let file = entry_service::gen_entry(&table, column_list);
-      println!("{}", file);
+      entry_service::gen_entry(&table, column_list);
       break;
    }
 }

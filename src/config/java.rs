@@ -1,6 +1,27 @@
 use std::collections::HashMap;
+use regex::Regex;
 
-// 数据库与java 类型转化
+use crate::utils::*;
+
+
+// 获得包名
+pub fn get_package_name() -> String {
+    let config_str = file_util::get_content(&String::from("config.ini"));
+    let split_arr: Vec<&str> = config_str.split("\n").collect();
+    let mut res = String::from("");
+    let r = Regex::new("app.packagename").unwrap();
+    for line in split_arr {
+        if r.is_match(line) {
+            let kv: Vec<&str> = line.split("=").collect();
+            res = String::from(kv[1]);
+            break;
+        }
+    }
+    res
+}
+
+
+// 数据库与java 类型转化，只支持自己的常用类型
 pub fn get_java_map() -> HashMap<String, String> {
     let res: HashMap<String, String> = [
         ("bigint".to_string(), "String".to_string()),
