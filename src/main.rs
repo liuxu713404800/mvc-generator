@@ -5,6 +5,7 @@ mod model;
 
 use service::db::table as table_service;
 use service::entry as entry_service;
+use service::mapper as mapper_service;
 
 fn main() {
 
@@ -12,7 +13,8 @@ fn main() {
 
    for table in table_list {
       let column_list = table_service::get_table_columns(&table);
-      entry_service::gen_entry(&table, column_list);
+      entry_service::gen_entry(&table, &column_list);
+      mapper_service::gen_mapper(&table, &column_list);
       break;
    }
 }

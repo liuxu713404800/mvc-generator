@@ -33,3 +33,5 @@ pub fn get_table_columns(table: &str) -> Vec<Column> {
     let res: Vec<Column> = conn.query_map(sql, |(column_name, data_type, column_key)| Column{column_name: column_name, data_type: data_type , column_key: column_key}).unwrap();
     res
 }
+
+

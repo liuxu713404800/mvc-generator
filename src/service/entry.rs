@@ -4,13 +4,13 @@ use crate::config::java;
 use crate::service::output as output_service;
 
 // 生成entry文件
-pub fn gen_entry(table: &str, column_list: Vec<Column>) {
+pub fn gen_entry(table: &str, column_list: &Vec<Column>) {
     let mut content = String::from("");
     let package_line = get_package_line();
-    let import_lines = get_import_lines(&column_list);
+    let import_lines = get_import_lines(column_list);
     let annotation_lines = get_annotation_lines();
     let class_name_line = get_class_name_line(table);
-    let field_lines = get_field_lines(&column_list);
+    let field_lines = get_field_lines(column_list);
     let end_line = get_end_line();
     content = content + &package_line + "\n\n" + &import_lines + "\n" + &annotation_lines
               + &class_name_line + "\n" + "\n" + &field_lines + "\n" + &end_line + "\n";
