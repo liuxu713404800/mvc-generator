@@ -2,8 +2,6 @@ use std::collections::HashMap;
 use crate::model::column::Column;
 use crate::utils::string_util;
 
-use super::java;
-
 // TODO rust hashMap简明初始化 ，全局变量
 pub fn get_db_map() -> HashMap<String, String> {
     let res: HashMap<String, String> = [
@@ -46,8 +44,9 @@ pub fn get_key_column_name(table: &str, column_list: &Vec<Column>) -> String {
     key
 }
 
-// 查询主键java类型
-pub fn get_key_java_type(table: &str, column_list: &Vec<Column>) -> String {
+
+// 查询主键db类型
+pub fn get_key_db_type(table: &str, column_list: &Vec<Column>) -> String {
     let mut key: String = String::from("");
     for colum in column_list {
         if colum.column_key == "PRI" {
@@ -58,9 +57,9 @@ pub fn get_key_java_type(table: &str, column_list: &Vec<Column>) -> String {
     if string_util::is_empty(&key) {
         panic!("{}", table.to_string() + " has no primary key");
     }
-    let db_java_map = java::get_java_map();
-    let java_type = db_java_map.get(&key);
-    match java_type {
+    let db_map = get_db_map();
+    let db_type = db_map.get(&key);
+    match db_type {
         Some(t) => String::from(t),
         None => panic!("{}", table.to_string() + " primary key type not find")
     }

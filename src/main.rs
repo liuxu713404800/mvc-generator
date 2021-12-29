@@ -7,6 +7,7 @@ use service::db::table as table_service;
 use service::entry as entry_service;
 use service::mapper as mapper_service;
 use service::dto as dto_service;
+use service::dao as dao_service;
 
 fn main() {
 
@@ -17,6 +18,7 @@ fn main() {
       entry_service::gen_entry(&table, &column_list);
       mapper_service::gen_mapper(&table, &column_list);
       dto_service::gen_filter(&table);
+      dao_service::gen_xml(&table, &column_list);
       break;
    }
 }

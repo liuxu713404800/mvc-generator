@@ -71,18 +71,18 @@ fn get_interface_lines(table: &str, column_list: &Vec<Column>) -> String {
     let entry_type = string_util::get_hump_class_name(table) + "Entry";
     let entry_var = string_util::get_hump_variable_name(table);
 
-    let mut key = db::get_key_column_name(table, column_list);
-    key = string_util::get_hump_variable_name(&key);
-    let key_up = string_util::get_hump_class_name(&key);
-    let key_type = db::get_key_java_type(table, column_list);
+    let key_column = db::get_key_column_name(table, column_list);
+    let key_var = string_util::get_hump_variable_name(&key_column);
+    let key_up = string_util::get_hump_class_name(&key_var);
+    let key_type = java::get_key_java_type(table, column_list);
 
     let entry_list = String::from("List<") + &entry_type + ">";
     let entry_param = String::from("@Param(\"") + &entry_var +"\") " + &entry_type + " " + &entry_var;
 
     let filter_type = string_util::get_hump_class_name(&table) + "Filter";
 
-    let get_by_key = four_space.clone() + &entry_type + " getBy" + &key_up + "(@Param(\"" + &key +"\") " + &key_type + " " + &key + ");";
-    let get_by_keys = four_space.clone() + &entry_list + " getBy" + &key_up + "s" + "(@Param(\""+ &key + "s\") " + &key_type + " " + &key + "s);";
+    let get_by_key = four_space.clone() + &entry_type + " getBy" + &key_up + "(@Param(\"" + &key_var +"\") " + &key_type + " " + &key_var + ");";
+    let get_by_keys = four_space.clone() + &entry_list + " getBy" + &key_up + "s" + "(@Param(\""+ &key_var + "s\") " + &key_type + " " + &key_var + "s);";
     let get_page_list = four_space.clone() + &entry_list + " getPageList(@Param(\"filter\") " + &filter_type + " filter, @Param(\"limit\") Integer limit, @Param(\"offset\") Integer offset);";
     let get_count = four_space.clone() + "Integer getCount(@Param(\"filter\") " + &filter_type + " filter);";
     let get_by_filter = four_space.clone() + &entry_list + " getByFilter(@Param(\"filter\") " + &filter_type + " filter);";

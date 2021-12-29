@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use crate::model::column::Column;
 use regex::Regex;
 
 use crate::utils::*;
@@ -54,4 +55,25 @@ pub fn get_need_lib_type_map() -> HashMap<String, String> {
         ("Timestamp".to_string(), "java.sql.Timestamp".to_string())
         ].iter().cloned().collect();
     res
+}
+
+
+// 查询主键java类型
+pub fn get_key_java_type(table: &str, column_list: &Vec<Column>) -> String {
+    let mut key: String = String::from("");
+    for colum in column_list {
+        if colum.column_key == "PRI" {
+            key = colum.data_type.clone();
+            break;
+        }
+    }
+    if string_util::is_empty(&key) {
+        panic!("{}", table.to_string() + " has no primary key");
+    }
+    let java_map = get_java_map();
+    let java_type = java_map.get(&key);
+    match java_type {
+        Some(t) => String::from(t),
+        None => panic!("{}", table.to_string() + " primary key type not find")
+    }
 }
