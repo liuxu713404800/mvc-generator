@@ -79,13 +79,17 @@ fn get_interface_lines(table: &str, column_list: &Vec<Column>) -> String {
     let entry_list = String::from("List<") + &entry_type + ">";
     let entry_param = String::from("@Param(\"") + &entry_var +"\") " + &entry_type + " " + &entry_var;
 
+    let filter_type = string_util::get_hump_class_name(&table) + "Filter";
+
     let get_by_key = four_space.clone() + &entry_type + " getBy" + &key_up + "(@Param(\"" + &key +"\") " + &key_type + " " + &key + ");";
-    let get_by_keys = four_space.clone() + &entry_list + " getBy" + &key_up + "s" + "(@Param(\""+ &key + "s\") " + &entry_list + " " + &key + "s);";
-    let get_page_list = four_space.clone() + &entry_list + " getPageList(@Param(\"limit\") Integer limit, @Param(\"offset\") Integer offset);";
+    let get_by_keys = four_space.clone() + &entry_list + " getBy" + &key_up + "s" + "(@Param(\""+ &key + "s\") " + &key_type + " " + &key + "s);";
+    let get_page_list = four_space.clone() + &entry_list + " getPageList(@Param(\"filter\") " + &filter_type + " filter, @Param(\"limit\") Integer limit, @Param(\"offset\") Integer offset);";
+    let get_count = four_space.clone() + "Integer getCount(@Param(\"filter\") " + &filter_type + " filter);";
+    let get_by_filter = four_space.clone() + &entry_list + " getByFilter(@Param(\"filter\") " + &filter_type + " filter);";
     let add = four_space.clone() + "void add(" + &entry_param + ");";
     let update = four_space.clone() + "void update(" + &entry_param + ");";
 
-    res = res + &get_by_key + "\n\n" + &get_by_keys + "\n\n" + &get_page_list + "\n\n" + &add + "\n\n" + &update + "\n\n";
+    res = res + &get_by_key + "\n\n" + &get_by_keys + "\n\n" + &get_page_list + "\n\n" + &get_count + "\n\n" + &get_by_filter + "\n\n" + &add + "\n\n" + &update + "\n\n";
     res
 }
 
