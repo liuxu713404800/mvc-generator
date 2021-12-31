@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use regex::Regex;
 
 pub fn is_empty(input_str: &str) -> bool {
     let mut result = true;
@@ -102,4 +103,13 @@ pub fn trans_first_word_up(word: &str) -> String {
       Some(v) => res + &v + &next,
       None => word.to_string(),
    }
+}
+
+
+pub fn check_conation_underline(word: &str) -> bool {
+    let r = Regex::new("_").unwrap();
+    if r.is_match(word) {
+        return true;
+    }
+    false
 }

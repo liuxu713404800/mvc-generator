@@ -4,31 +4,34 @@ use crate::config::java;
 use crate::service::output as output_service;
 
 // 生成entry文件
-pub fn gen_entry(table: &str, column_list: &Vec<Column>) {
+pub fn gen_vo(table: &str, column_list: &Vec<Column>) {
     let mut content = String::from("");
     let package_line = get_package_line();
-    let import_lines = get_import_lines(column_list);
+    let import_lines = get_import_lines(table, column_list);
     let annotation_lines = get_annotation_lines();
     let class_name_line = get_class_name_line(table);
     let field_lines = get_field_lines(column_list);
     let empty_constructor_lines = get_empty_constructor_lines(table);
+    let entry_constructor_lines = get_entry_constructor_lines(table, column_list);
     let end_line = get_end_line();
-    content = content + &package_line + "\n\n" + &import_lines + "\n" + &annotation_lines + &class_name_line + "\n" 
-                      + "\n" + &field_lines + "\n" + &empty_constructor_lines + "\n" + &end_line + "\n";
-    let filename = string_util::get_hump_class_name(table) + "Entry.java";           
-    output_service::write_result("domain",  &filename , &content);
+    content = content + &package_line + "\n\n" + &import_lines + "\n" + &annotation_lines + &class_name_line + "\n" + "\n" + &field_lines + "\n" 
+              + &empty_constructor_lines + " \n" + &entry_constructor_lines + "\n" + &end_line + "\n";
+    let filename = string_util::get_hump_class_name(table) + "VO.java";           
+    output_service::write_result("vo",  &filename , &content);
 }
 
 fn get_package_line() -> String {
     let package_name = java::get_package_name();
-    String::from("package ") + &package_name + ".domain;"
+    String::from("package ") + &package_name + ".vo;"
 }
 
 
 // 需要导入的包
-fn get_import_lines(column_list: &Vec<Column>) -> String {
+fn get_import_lines(table: &str, column_list: &Vec<Column>) -> String {
     let mut res = String::from("");
     let mut libs: Vec<String> = Vec::new();
+    libs.push(java::get_package_name() + ".domain." + &string_util::get_hump_class_name(table) + "Entry");
+    libs.push(String::from("com.fasterxml.jackson.annotation.JsonProperty"));
     libs.push(String::from("lombok.Data"));
     if column_list.len() == 0 {
         return res;
@@ -67,7 +70,7 @@ fn get_annotation_lines() -> String {
 // 类定义行
 fn get_class_name_line(table: &str) -> String {
     let mut res = String::from("");
-    res = res + "public class " + &string_util::get_hump_class_name(table) + "Entry" + " {";
+    res = res + "public class " + &string_util::get_hump_class_name(table) + "VO" + " {";
     res
 }
 
@@ -81,19 +84,43 @@ fn get_field_lines(column_list: &Vec<Column>) -> String {
         let data_type = &column.data_type; // 列的数据库类型
         let java_type = db_java_map.get(data_type); // 对应的java类型
         match java_type {
-            Some(t) => {res = res + "    private " + t + " " + &hump_name + ";\n";},
+            Some(t) => {
+                if string_util::check_conation_underline(&column.column_name) {
+                    res = res + "    @JsonProperty(\"" + &column.column_name + "\")\n";
+                }
+                res = res + "    private " + t + " " + &hump_name + ";\n";
+            },
             None => continue,
         }
     }
     res
 }
 
+
 // 空构造函数
 fn get_empty_constructor_lines(table: &str) -> String {
     let mut res = String::from("");
-    res = res + "    public " + &string_util::get_hump_class_name(table) + "Entry()" + " {  }\n";
+    res = res + "    public " + &string_util::get_hump_class_name(table) + "VO()" + " {  }\n";
     res
 }
+
+
+// 来自实体的造函数
+fn get_entry_constructor_lines(table: &str, column_list: &Vec<Column>) -> String {
+    let mut res = String::from("");
+
+    let entry_type = string_util::get_hump_class_name(table) + "Entry";
+    let entry_var = string_util::get_hump_variable_name(table);
+
+    res = res + "    public " + &string_util::get_hump_class_name(table) + "VO(" + &entry_type + " " + &entry_var + ")" + " {\n";
+    for column in column_list {
+        let column_var = string_util::get_hump_variable_name(&column.column_name);
+        res = res + "        this." + &column_var + " = " + &entry_type + ".get" + &string_util::trans_first_word_up(&column_var) + "();\n";
+    }
+    res = res + "    }\n";
+    res
+}
+
 
 // 类结束行
 fn get_end_line() -> String{

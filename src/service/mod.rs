@@ -6,3 +6,4 @@ pub mod entry;
 pub mod mapper;
 pub mod service;
 pub mod output;
+pub mod vo;
