@@ -105,7 +105,7 @@ pub fn trans_first_word_up(word: &str) -> String {
    }
 }
 
-
+// 是否有下划线
 pub fn check_conation_underline(word: &str) -> bool {
     let r = Regex::new("_").unwrap();
     if r.is_match(word) {

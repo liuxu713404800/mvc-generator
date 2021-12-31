@@ -18,6 +18,7 @@ pub fn gen_vo(table: &str, column_list: &Vec<Column>) {
               + &empty_constructor_lines + " \n" + &entry_constructor_lines + "\n" + &end_line + "\n";
     let filename = string_util::get_hump_class_name(table) + "VO.java";           
     output_service::write_result("vo",  &filename , &content);
+    
 }
 
 fn get_package_line() -> String {
@@ -127,4 +128,31 @@ fn get_end_line() -> String{
     let mut res = String::from("") ;
     res = res + "}\n";
     res
+}
+
+
+// 基础列表函数
+pub fn gen_base_page_list() {
+    let package_line = get_package_line();
+    let mut content = String::from("");
+    content = content + &package_line + "\n
+import lombok.Data;
+
+import java.util.List;
+    
+@Data
+public class BasePageListVO<T>  {
+
+    private List<T> list;
+    private Integer count;
+
+    public BasePageListVO() {
+    }
+
+    public BasePageListVO(List<T> list, Integer count) {
+        this.list = list;
+        this.count = count;
+    }
+}";
+    output_service::write_result("vo",  "BasePageListVO.java" , &content);
 }

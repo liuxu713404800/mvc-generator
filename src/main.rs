@@ -20,7 +20,10 @@ fn main() {
       service::dto::gen_filter(&table);
       service::dao::gen_xml(&table, &column_list);
       service::vo::gen_vo(&table, &column_list);
+      service::service::gen_service(&table, &column_list);
    }
+
+   service::vo::gen_base_page_list();
 }
 
 // 得到需要生成的表

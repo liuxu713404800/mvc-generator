@@ -9,9 +9,10 @@ pub fn gen_filter(table: &str) {
     let import_lines = get_import_lines();
     let annotation_lines = get_annotation_lines();
     let class_name_line = get_class_name_line(table);
+    let empty_constructor_lines = get_empty_constructor_lines(table);
     let end_line = get_end_line();
     content = content + &package_line + "\n\n" + &import_lines + "\n" + &annotation_lines
-              + &class_name_line + "\n\n" + &end_line + "\n";
+              + &class_name_line + "\n\n" + &empty_constructor_lines + "\n" + &end_line + "\n";
     let filename = string_util::get_hump_class_name(table) + "Filter.java";           
     output_service::write_result("dto/filter",  &filename , &content);
 }
@@ -54,6 +55,13 @@ fn get_class_name_line(table: &str) -> String {
 // fn get_function_lines(table: &str) -> String {
 
 // }
+
+// 空构造函数
+fn get_empty_constructor_lines(table: &str) -> String {
+    let mut res = String::from("");
+    res = res + "    public " + &string_util::get_hump_class_name(table) + "Filter()" + " {  }\n";
+    res
+}
 
 // 类结束行
 fn get_end_line() -> String{
