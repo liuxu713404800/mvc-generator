@@ -89,7 +89,7 @@ fn split_str_to_list(name: &str) -> Vec<String> {
 
 // TODO 切割字符串优雅方案
 // 将单次首字母大写
-fn trans_first_word_up(word: &str) -> String {
+pub fn trans_first_word_up(word: &str) -> String {
     let res = String::from("");
    if is_empty(word) { 
        return res;
