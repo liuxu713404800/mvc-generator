@@ -5,7 +5,8 @@ use crate::service::output as output_service;
 
 const FOUR_SPACE: &str = "    ";
 const EIGHT_SPACE: &str = "        ";
-//const TWELVE_SPACE: &str = "            ";
+const TWELVE_SPACE: &str = "            ";
+const SIXTEEN_SPACE: &str = "                ";
 
 pub fn gen_xml(table: &str, column_list: &Vec<Column>) {
     let mut content = String::from("");
@@ -83,6 +84,8 @@ fn get_sql_lines(table: &str, column_list: &Vec<Column>) -> String {
     res = res + &get_page_list_lines(table) + "\n\n";
     res = res + &get_count_lines(table) + "\n\n";
     res = res + &get_by_filter_lines(table) + "\n\n";
+    res = res + &add_lines(table, column_list) + "\n\n";
+    res = res + &update_lines(table, column_list);
     res
 }
 
@@ -95,7 +98,7 @@ fn get_by_key_lines(table: &str, column_list: &Vec<Column>) -> String {
     let key_up = string_util::trans_first_word_up(&key_var);
 
     res = res + FOUR_SPACE + "<select id=\"getBy" + &key_up + "\" resultMap=\"ResultMap\">\n";
-    res = res + EIGHT_SPACE + "select * from `" + table + "` where `" + &key_column + "` = #{" + &key_var + "}\n";
+    res = res + EIGHT_SPACE + "select * from " + table + " where " + &key_column + " = #{" + &key_var + "}\n";
     res = res + FOUR_SPACE + "</select>\n";
     res
 }
@@ -108,7 +111,7 @@ fn get_by_keys_lines(table: &str, column_list: &Vec<Column>) -> String {
     let key_up = string_util::trans_first_word_up(&key_var);
 
     res = res + FOUR_SPACE + "<select id=\"getBy" + &key_up + "s\" resultMap=\"ResultMap\">\n";
-    res = res + EIGHT_SPACE + "select * from `" + table + "` where `" + &key_column + "` in\n";
+    res = res + EIGHT_SPACE + "select * from " + table + " where " + &key_column + " in\n";
     res = res + EIGHT_SPACE + "<foreach collection=\"" + &key_var + "s\" separator=\",\" item=\"item\" open=\"(\" close=\")\"> #{item} </foreach>\n";
     res = res + FOUR_SPACE + "</select>\n";
     res
@@ -118,7 +121,7 @@ fn get_page_list_lines(table: &str) -> String {
     let mut res = String::from("");
 
     res = res + FOUR_SPACE + "<select id=\"getPageList\" resultMap=\"ResultMap\">\n";
-    res = res + EIGHT_SPACE + "select * from `" + table + "` where 1\n";
+    res = res + EIGHT_SPACE + "select * from " + table + " where 1\n";
     res = res + EIGHT_SPACE + "<!-- add filter condition -->\n";
     res = res + EIGHT_SPACE + "limit #{limit} offset #{offset}\n";
     res = res + FOUR_SPACE + "</select>\n";
@@ -129,7 +132,7 @@ fn get_count_lines(table: &str) -> String {
     let mut res = String::from("");
 
     res = res + FOUR_SPACE + "<select id=\"getCount\" resultType=\"java.lang.Integer\">\n";
-    res = res + EIGHT_SPACE + "select count(*) from `" + table + "` where 1\n";
+    res = res + EIGHT_SPACE + "select count(*) from " + table + " where 1\n";
     res = res + EIGHT_SPACE + "<!-- add filter condition -->\n";
     res = res + FOUR_SPACE + "</select>\n";
     res
@@ -138,14 +141,83 @@ fn get_count_lines(table: &str) -> String {
 
 fn get_by_filter_lines(table: &str) -> String {
     let mut res = String::from("");
-
+    
     res = res + FOUR_SPACE + "<select id=\"getByFilter\" resultMap=\"ResultMap\">\n";
-    res = res + EIGHT_SPACE + "select * from `" + table + "` where 1\n";
+    res = res + EIGHT_SPACE + "select * from " + table + " where 1\n";
     res = res + EIGHT_SPACE + "<!-- add filter condition -->\n";
     res = res + FOUR_SPACE + "</select>\n";
     res
 }
 
+
+fn add_lines(table: &str, column_list: &Vec<Column>) -> String {
+    let mut res = String::from("");
+
+    let package_name = java::get_package_name();
+    let entry_type = string_util::get_hump_class_name(table) + "Entry";
+    let entry_var = string_util::get_hump_variable_name(table);
+
+    let key_column = db::get_key_column_name(table, column_list);
+    let key_var = string_util::get_hump_variable_name(&key_column);
+
+    res = res + FOUR_SPACE + "<insert id=\"add\" parameterType=\"" + &package_name + ".domain." + &entry_type + "\" useGeneratedKeys=\"true\" keyProperty=\"" + &key_var + "\">\n";
+    res = res + EIGHT_SPACE + "insert into " + &table + "\n";
+    res = res + EIGHT_SPACE + "(<trim suffixOverrides=\",\">\n";
+    for column in column_list {
+        if column.column_name == key_column {
+            continue;
+        }
+        let column_var = string_util::get_hump_variable_name(&column.column_name);
+        res = res + TWELVE_SPACE + "<if test=\"" + &entry_var + "." + &column_var + " != null\">\n";
+        res = res + SIXTEEN_SPACE + &column.column_name + ",\n";
+        res = res + TWELVE_SPACE + "</if>\n";
+    }
+
+    res = res + EIGHT_SPACE + "</trim>)\n";
+    res = res + EIGHT_SPACE + "values\n";
+    res = res + EIGHT_SPACE + "(<trim suffixOverrides=\",\">\n";  
+
+    for column in column_list {
+        if column.column_name == key_column {
+            continue;
+        }
+        let column_var = string_util::get_hump_variable_name(&column.column_name);
+        res = res + TWELVE_SPACE + "<if test=\"" + &entry_var + "." + &column_var + " != null\">\n";
+        res = res + SIXTEEN_SPACE + "#{" + &entry_var + "." + &column_var + "},\n";
+        res = res + TWELVE_SPACE + "</if>\n";
+    }
+    res = res + EIGHT_SPACE + "</trim>)\n";
+    res = res + FOUR_SPACE + "</insert>\n";
+    res
+}
+
+fn update_lines(table: &str, column_list: &Vec<Column>) -> String {
+    let mut res = String::from("");
+
+    let key_column = db::get_key_column_name(table, column_list);
+    let key_var = string_util::get_hump_variable_name(&key_column);
+
+    let package_name = java::get_package_name();
+    let entry_type = string_util::get_hump_class_name(table) + "Entry";
+    let entry_var = string_util::get_hump_variable_name(table);
+
+    res = res + FOUR_SPACE + "<update id=\"update\" parameterType=\"" + &package_name + ".domain." + &entry_type + "\">\n";
+    res = res + EIGHT_SPACE + "update " +  &table + "\n";
+    res = res + EIGHT_SPACE + "<trim prefix=\"set\" suffixOverrides=\",\">\n";
+    for column in column_list {
+        if column.column_key == "PRI" {
+            continue;
+        }
+        let column_var = string_util::get_hump_variable_name(&column.column_name);
+        res = res + TWELVE_SPACE + "<if test=\"" + &entry_var + "." + &column_var + " != null\">\n";
+        res = res + SIXTEEN_SPACE + &column.column_name + " = #{" + &entry_var + "." + &column_var + "},\n";
+        res = res + TWELVE_SPACE + "</if>\n";
+    }
+    res = res + EIGHT_SPACE + "</trim>)\n";
+    res = res + EIGHT_SPACE + "where " + &key_column + " = #{" + &entry_var + "." + &key_var + "} limit 1\n";
+    res = res + FOUR_SPACE + "</update>\n";
+    res
+}
 
 fn get_tail_line() -> String {
     String::from("</mapper>")
