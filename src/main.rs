@@ -21,8 +21,8 @@ fn main() {
       service::dao::gen_xml(&table, &column_list);
       service::vo::gen_vo(&table, &column_list);
       service::service::gen_service(&table, &column_list);
+      service::controller::gen_controller(&table, &column_list);
    }
-
    service::vo::gen_base_page_list();
 }
 
