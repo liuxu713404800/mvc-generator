@@ -6,7 +6,7 @@ use crate::service::output as output_service;
 const FOUR_SPACE: &str = "    ";
 const EIGHT_SPACE: &str = "        ";
 const TWELVE_SPACE: &str = "            ";
-// const SIXTEEN_SPACE: &str = "                ";
+const TWENTY_SPACE: &str = "                    ";
 
 pub fn gen_service(table: &str, column_list: &Vec<Column>) {
     let mut content = String::from("");
@@ -84,6 +84,8 @@ fn get_function_lines(table: &str, column_list: &Vec<Column>) -> String {
     let mut res = String::from("");
     res = res + &get_page_list_lines(table) + "\n";
     res = res + &get_detail_lines(table, column_list) + "\n";
+    res = res + &add_lines(table, column_list) + "\n";
+    res = res + &update_lines(table, column_list) + "\n";
     res
 }
 
@@ -119,7 +121,7 @@ fn get_page_list_lines(table: &str) -> String {
     res
 }
 
-
+// 查询详情
 fn get_detail_lines(table: &str, column_list: &Vec<Column>) -> String {
     let mut res = String::from("");
 
@@ -138,6 +140,130 @@ fn get_detail_lines(table: &str, column_list: &Vec<Column>) -> String {
     res = res + FOUR_SPACE + "public " + &vo_type + " getDetail(" + &key_type + " " + &key_var + ") { \n"; 
     res = res + EIGHT_SPACE + &entry_type + " " + &entry_var + " = " + &mapper_var + ".getBy" + &key_up + "(" + &key_var + ");\n";
     res = res + EIGHT_SPACE + "return new " + &vo_type + "(" + &entry_var + ");\n";
+    res = res + FOUR_SPACE + "}\n";
+    res
+}
+
+// 添加
+fn add_lines(table: &str, column_list: &Vec<Column>) -> String {
+    let mut res = String::from("");
+
+    let entry_type = string_util::get_hump_class_name(table) + "Entry";
+    let entry_var = string_util::get_hump_variable_name(table);
+
+    let entry_mapper = string_util::get_hump_variable_name(table) + "Mapper";
+
+    let java_map = java::get_java_map();
+
+    res = res + FOUR_SPACE + "public void add(";
+
+    // 获得需要添加的参数列表
+    let mut add_list: Vec<(String, String)> = Vec::new();
+    for column in column_list {
+        let column_name = &column.column_name;
+        let data_type: &str = &column.data_type;
+        // 主键或者忽略字段不加入函数
+        if column.column_key == "PRI" || column_name == "create_time" || column_name == "update_time" {
+            continue;
+        }
+        let column_var = string_util::get_hump_variable_name(column_name);
+        let java_type = java_map.get(data_type);
+        match java_type {
+            Some(t) => add_list.push((String::from(t), column_var)),
+            None => panic!("column java type not find")
+        }
+    }
+    // 添加参数
+    let mut i = 0;
+    let params_len = add_list.len();
+    let last_idx = params_len - 1;
+    while i < params_len {
+        let data_type = &add_list[i].0;
+        let data_var = &add_list[i].1;
+        if i == 0 {
+            res = res + data_type + " " + data_var + ",\n"
+        } 
+        if 0 < i && i < last_idx {
+            res = res + TWENTY_SPACE + data_type + " " + data_var + ",\n"
+        }
+        if i == last_idx {
+            res = res + TWENTY_SPACE + data_type + " " + data_var + ") {\n"
+        }
+        i = i + 1
+    }
+
+    res = res + EIGHT_SPACE + &entry_type + " " + &entry_var + " = new " + &entry_type + "();\n";
+
+    i = 0;
+    while i < params_len {
+        let data_var = &add_list[i].1;
+        res = res + EIGHT_SPACE + &entry_var + ".set" + &string_util::trans_first_word_up(data_var) + "(" + &data_var + ");\n";
+        i = i + 1
+    }
+
+    res = res + EIGHT_SPACE + &entry_mapper + ".add(" + &entry_var + ");\n";
+    res = res + FOUR_SPACE + "}\n";
+    res
+}
+
+// 更新
+fn update_lines(table: &str, column_list: &Vec<Column>) -> String {
+    let mut res = String::from("");
+
+    let entry_type = string_util::get_hump_class_name(table) + "Entry";
+    let entry_var = string_util::get_hump_variable_name(table);
+
+    let entry_mapper = string_util::get_hump_variable_name(table) + "Mapper";
+
+    let java_map = java::get_java_map();
+
+    res = res + FOUR_SPACE + "public void update(";
+
+    // 获得需要添加的参数列表
+    let mut add_list: Vec<(String, String)> = Vec::new();
+    for column in column_list {
+        let column_name = &column.column_name;
+        let data_type: &str = &column.data_type;
+        // 主键或者忽略字段不加入函数
+        if column_name == "create_time" || column_name == "update_time" {
+            continue;
+        }
+        let column_var = string_util::get_hump_variable_name(column_name);
+        let java_type = java_map.get(data_type);
+        match java_type {
+            Some(t) => add_list.push((String::from(t), column_var)),
+            None => panic!("column java type not find")
+        }
+    }
+    // 添加参数
+    let mut i = 0;
+    let params_len = add_list.len();
+    let last_idx = params_len - 1;
+    while i < params_len {
+        let data_type = &add_list[i].0;
+        let data_var = &add_list[i].1;
+        if i == 0 {
+            res = res + data_type + " " + data_var + ",\n"
+        } 
+        if 0 < i && i < last_idx {
+            res = res + TWENTY_SPACE + "   " + data_type + " " + data_var + ",\n"
+        }
+        if i == last_idx {
+            res = res + TWENTY_SPACE + "   " + data_type + " " + data_var + ") {\n"
+        }
+        i = i + 1
+    }
+
+    res = res + EIGHT_SPACE + &entry_type + " " + &entry_var + " = new " + &entry_type + "();\n";
+
+    i = 0;
+    while i < params_len {
+        let data_var = &add_list[i].1;
+        res = res + EIGHT_SPACE + &entry_var + ".set" + &string_util::trans_first_word_up(data_var) + "(" + &data_var + ");\n";
+        i = i + 1
+    }
+
+    res = res + EIGHT_SPACE + &entry_mapper + ".update(" + &entry_var + ");\n";
     res = res + FOUR_SPACE + "}\n";
     res
 }

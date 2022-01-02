@@ -135,24 +135,18 @@ fn get_end_line() -> String{
 pub fn gen_base_page_list() {
     let package_line = get_package_line();
     let mut content = String::from("");
-    content = content + &package_line + "\n
-import lombok.Data;
-
-import java.util.List;
-    
-@Data
-public class BasePageListVO<T>  {
-
-    private List<T> list;
-    private Integer count;
-
-    public BasePageListVO() {
-    }
-
-    public BasePageListVO(List<T> list, Integer count) {
-        this.list = list;
-        this.count = count;
-    }
-}";
+    content = content + &package_line + "\n\n";
+    content = content + "import lombok.Data;\n\n";
+    content = content + "import java.util.List;\n\n";
+    content = content + "@Data\n";
+    content = content + "public class BasePageListVO<T> {\n\n";
+    content = content + "    private List<T> list;\n";
+    content = content + "    private Integer count;\n\n";
+    content = content + "    public BasePageListVO() { }\n\n";
+    content = content + "    public BasePageListVO(List<T> list, Integer count) { \n";
+    content = content + "        this.list = list;\n";
+    content = content + "        this.count = count;\n";
+    content = content + "    }\n";
+    content = content + "}\n";
     output_service::write_result("vo",  "BasePageListVO.java" , &content);
 }
