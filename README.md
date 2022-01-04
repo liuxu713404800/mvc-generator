@@ -42,7 +42,9 @@ resource
 
 
 
-Mapper/xml层写了七个基本函数
+
+
+Mapper/xml层写了七个基本函数：
 
 getBy`Pk`(一般就是getById了，根据主键查询)
 
@@ -59,7 +61,10 @@ add(添加)
 update(更新)
 
 
-controller/service中有四个函数
+
+
+
+controller/service中有四个函数：
 
 getPageList(分页查询)
 
