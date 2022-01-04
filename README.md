@@ -3,13 +3,18 @@ rust生成java开发中的一些常用固定的代码，比如controller，entry
 第一个rust小项目，写的不好，但是确实是可用的😄，可以生成一些模板代码再后后续手工修改
 
 使用方式，更新config.ini中的数据库配置和包名，然后在项目根目录，执行cargo run，即可生成全部表对应实体的增删改查的基础代码
+
 如果只想生成指定表的代码，只需要运行时加上表名即可(多个的话直接写多个参数即可)，如cargo run admin_user admin_log 
+
 文件会输出到src/output下，输出样例可以参考output_demo
 
 
 写的并不通用，是根据个人日常开发习惯来写的，有如下限制
+
 1）只支持mysql
+
 2）表只支持有自增主键，否则会panic
+
 3）并非支持所有的mysql字段类型，只支持src/config/db.rs中的几种
 
 
