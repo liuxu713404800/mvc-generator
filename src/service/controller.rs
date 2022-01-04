@@ -112,7 +112,7 @@ fn get_detail_lines(table: &str, column_list: &Vec<Column>) -> String {
     let vo_type = string_util::get_hump_class_name(table) + "VO";
     
     res = res + FOUR_SPACE + "@GetMapping(\"getDetail\")\n"; 
-    res = res + FOUR_SPACE + "public void getDetail(" + &key_type + " " + &key_var + ") { \n"; 
+    res = res + FOUR_SPACE + "public void getDetail(@RequestParam(value = \"" + &key_var + "\")" + &key_type + " " + &key_var + ") { \n"; 
     res = res + EIGHT_SPACE + &vo_type + " " + " res = " + &service_var + ".getBy" + &key_up + "(" + &key_var + ");\n";
     res = res + FOUR_SPACE + "}\n";
     res

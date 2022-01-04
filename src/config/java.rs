@@ -25,7 +25,7 @@ pub fn get_package_name() -> String {
 // 数据库与java 类型转化，只支持自己的常用类型
 pub fn get_java_map() -> HashMap<String, String> {
     let res: HashMap<String, String> = [
-        ("bigint".to_string(), "String".to_string()),
+        ("bigint".to_string(), "Long".to_string()),
         ("char".to_string(), "String".to_string()),
         ("date".to_string(), "Timestamp".to_string()),
         ("datetime".to_string(), "Timestamp".to_string()),

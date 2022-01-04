@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.union.api.mapper.AdUserMapper">
+
+    <resultMap id="ResultMap" type="com.union.api.domain.AdUserEntry">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account" property="account" jdbcType="STRING"/>
+        <result column="password" property="password" jdbcType="STRING"/>
+        <result column="name" property="name" jdbcType="STRING"/>
+        <result column="avatar" property="avatar" jdbcType="STRING"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="is_admin" property="isAdmin" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="getById" resultMap="ResultMap">
+        select * from ad_user where id = #{id}
+    </select>
+
+
+    <select id="getByIds" resultMap="ResultMap">
+        select * from ad_user where id in
+        <foreach collection="ids" separator="," item="item" open="(" close=")"> #{item} </foreach>
+    </select>
+
+
+    <select id="getPageList" resultMap="ResultMap">
+        select * from ad_user where 1
+        <!-- add filter condition -->
+        limit #{limit} offset #{offset}
+    </select>
+
+
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from ad_user where 1
+        <!-- add filter condition -->
+    </select>
+
+
+    <select id="getByFilter" resultMap="ResultMap">
+        select * from ad_user where 1
+        <!-- add filter condition -->
+    </select>
+
+
+    <insert id="add" parameterType="com.union.api.domain.AdUserEntry" useGeneratedKeys="true" keyProperty="id">
+        insert into ad_user
+        (<trim suffixOverrides=",">
+            <if test="adUser.account != null">
+                account,
+            </if>
+            <if test="adUser.password != null">
+                password,
+            </if>
+            <if test="adUser.name != null">
+                name,
+            </if>
+            <if test="adUser.avatar != null">
+                avatar,
+            </if>
+            <if test="adUser.status != null">
+                status,
+            </if>
+            <if test="adUser.isAdmin != null">
+                is_admin,
+            </if>
+            <if test="adUser.createTime != null">
+                create_time,
+            </if>
+            <if test="adUser.updateTime != null">
+                update_time,
+            </if>
+        </trim>)
+        values
+        (<trim suffixOverrides=",">
+            <if test="adUser.account != null">
+                #{adUser.account},
+            </if>
+            <if test="adUser.password != null">
+                #{adUser.password},
+            </if>
+            <if test="adUser.name != null">
+                #{adUser.name},
+            </if>
+            <if test="adUser.avatar != null">
+                #{adUser.avatar},
+            </if>
+            <if test="adUser.status != null">
+                #{adUser.status},
+            </if>
+            <if test="adUser.isAdmin != null">
+                #{adUser.isAdmin},
+            </if>
+            <if test="adUser.createTime != null">
+                #{adUser.createTime},
+            </if>
+            <if test="adUser.updateTime != null">
+                #{adUser.updateTime},
+            </if>
+        </trim>)
+    </insert>
+
+
+    <update id="update" parameterType="com.union.api.domain.AdUserEntry">
+        update ad_user
+        <trim prefix="set" suffixOverrides=",">
+            <if test="adUser.account != null">
+                account = #{adUser.account},
+            </if>
+            <if test="adUser.password != null">
+                password = #{adUser.password},
+            </if>
+            <if test="adUser.name != null">
+                name = #{adUser.name},
+            </if>
+            <if test="adUser.avatar != null">
+                avatar = #{adUser.avatar},
+            </if>
+            <if test="adUser.status != null">
+                status = #{adUser.status},
+            </if>
+            <if test="adUser.isAdmin != null">
+                is_admin = #{adUser.isAdmin},
+            </if>
+            <if test="adUser.createTime != null">
+                create_time = #{adUser.createTime},
+            </if>
+            <if test="adUser.updateTime != null">
+                update_time = #{adUser.updateTime},
+            </if>
+        </trim>)
+        where id = #{adUser.id} limit 1
+    </update>
+
+
+</mapper>
